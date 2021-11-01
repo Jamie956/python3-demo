@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from elasticsearch import Elasticsearch
 from openpyxl import Workbook
 import os
