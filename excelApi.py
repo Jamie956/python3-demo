@@ -2,6 +2,7 @@
 import openpyxl
 import sys
 from datetime import datetime
+import os
 
 
 def simple_read():
@@ -95,7 +96,38 @@ def scroll_read():
     print('耗时（秒）', (datetime.now() - start).microseconds / 1000000)
 
 
+def write_api():
+    wb = openpyxl.Workbook()
+
+    # grab the active worksheet
+    ws = wb.active
+
+    # Data can be assigned directly to cells
+    ws['A1'] = 42
+
+    # Rows can also be appended
+    # 插入下一行
+    ws.append([1, 2, 3])
+
+    # Python types will automatically be converted
+    ws['A2'] = datetime.now()
+
+    ws.cell(3, 1, '111')
+    ws.cell(3, 2, '222')
+
+    # 如果不存在，创建output 文件夹
+    ouputExist = os.path.exists('./output')
+    if bool(1 - ouputExist):
+        print('文件夹不存在, 创建输出目录 ./output')
+        os.mkdir('./output')
+
+    # Save the file
+    wb.save("./output/target.xlsx")
+
+
 if __name__ == '__main__':
     # simple_read()
-    # init_scroll_data()
+    init_scroll_data()
     scroll_read()
+    # write_api()
+    print()
