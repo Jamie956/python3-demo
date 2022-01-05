@@ -82,6 +82,7 @@ def write_api():
 
 
 def read_as_json():
+    print('read excel')
     wb = openpyxl.load_workbook(config['file_path'])
     ws = wb.active
 

@@ -2,32 +2,30 @@
 from datetime import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
+import math
+from tqdm import tqdm
 
-# 本地连接
+# 连接
 es = Elasticsearch()
 
 
-# 连接指定地址
-# es = Elasticsearch(['192.168.1.**'],http_auth=('**', '**'),port=9200)
-
 # 删除索引
-def delete_index():
-    if es.indices.exists(index="test_index"):
-        print("索引存在")
-        response = es.indices.delete(index="test_index")
-        print('删除索引执行结果:', response)
+def delete_index(index):
+    if es.indices.exists(index=index):
+        es.indices.delete(index=index)
+        return False
+    return True
 
 
 # 新增数据
-def create_data():
-    for i in range(10):
+def insert_test_data(index, doc_type):
+    for i in range(1000):
         _body = {
             'author': 'kimchy' + str(i),
             'text': 'Elasticsearch: cool. bonsai cool.',
             'timestamp': datetime.now(),
         }
-        response = es.index(index="test_index", doc_type='index', id=i, body=_body)
-        print('创建文档执行结果:', response)
+        es.index(index=index, doc_type=doc_type, id=i, body=_body)
 
 
 # id查询
@@ -48,7 +46,7 @@ def es_query():
 
 # id更新
 def update_by_id():
-    response = es.update(index='test_index', doc_type='index', id='1', body={
+    es.update(index='test_index', doc_type='index', id='1', body={
         "doc": {
             'author': 'tom',
             'text': 'Elasticsearch: cool. bonsai cool.',
@@ -57,7 +55,7 @@ def update_by_id():
     })
 
 
-# 批量更新
+# 批量操作
 def bulk_operation():
     bulk_list = [
         # 删除id=1
@@ -103,36 +101,60 @@ def bulk_operation():
     response = helpers.bulk(es, bulk_list)
     print('批量操作执行结果（变更条数）：', response)
 
-def scroll_read():
-    # 新增数据
-    # doc = {
-    #     'author': 'kimchy',
-    #     'text': 'Elasticsearch: cool. bonsai cool.',
-    #     'timestamp': datetime.now(),
-    # }
-    # for i in range(200):
-    #     es.index(index="test_index", body=doc)
 
+# 批量插入
+def bulk_insert(index, doc_type, items):
+    batch_size = 500
+    total = len(items)
+    segment = math.ceil(total / batch_size)
+    actions = []
+
+    for i in range(segment):
+        start = i * batch_size
+        end = total if (start + batch_size) > total else start + batch_size
+        for j in range(start, end):
+            action = {
+                "_index": index,
+                "_type": doc_type,
+                "_id": items[j]['id'],
+                "_source": items[j]
+            }
+            actions.append(action)
+    helpers.bulk(es, actions)
+
+
+def scroll_read(index, doc_type, query_body):
+    print('es scroll read')
+    result = []
     # 查询首页，获取返回滚动id
-    page = es.search(body={"query": {"match_all": {}}, "size": 100}, index="test_index", doc_type="index", scroll="2m")
+    page = es.search(body=query_body, index=index, doc_type=doc_type, scroll="2m")
     # 滚动id
     sid = page['_scroll_id']
     # 查询页大小
     scroll_size = page['hits']['total']
+    # 首页查询结果写入返回数组
+    page_data = page['hits']['hits']
+    for doc in page_data:
+        result.append(doc['_source'])
 
     while (scroll_size > 0):
-        start = datetime.now()
         page = es.scroll(scroll_id=sid, scroll='2m')
         sid = page['_scroll_id']
-        # 命中数据条数
-        scroll_size = len(page['hits']['hits'])
-        print('页查询', str(scroll_size), '条', '消耗时间（毫秒）', (datetime.now() - start).microseconds)
+        page_data = page['hits']['hits']
+        scroll_size = len(page_data)
+        if scroll_size > 0:
+            for doc in page_data:
+                result.append(doc['_source'])
+    return result
+
 
 if __name__ == '__main__':
-    # delete_index()
-    # create_data()
-    # find_by_id()
-    # es_query()
-    # update_by_id()
-    # bulk_operation()
-    scroll_read()
+    # insert_test_data('test_index', 'index')
+    # query_body = {"query": {"match_all": {}}, "size": 100}
+    # scroll_read('test_index', 'index', query_body)
+    # delete_index('test_index')
+    items = [
+        {'id': '111', 'name': '222'}
+    ]
+    bulk_insert('test_index', 'index', items)
+    print()

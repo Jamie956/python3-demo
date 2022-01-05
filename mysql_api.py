@@ -150,6 +150,7 @@ def delete():
 
 
 def read_as_json(sql, fields):
+    print("query mysql")
     cursor = db.cursor()
 
     try:
