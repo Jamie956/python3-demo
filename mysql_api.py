@@ -2,11 +2,18 @@
 
 import pymysql
 
+config = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'root',
+    'database': 'db2019'
+}
+
 # 打开数据库连接
-db = pymysql.connect(host='localhost',
-                     user='root',
-                     password='root',
-                     database='db2019')
+db = pymysql.connect(host=config['host'],
+                     user=config['user'],
+                     password=config['password'],
+                     database=config['database'])
 
 
 def check_version():
@@ -142,10 +149,38 @@ def delete():
     db.close()
 
 
+def read_as_json(sql, fields):
+    cursor = db.cursor()
+
+    try:
+        cursor.execute(sql)
+        query_result = cursor.fetchall()
+
+        result = []
+        for rows in query_result:
+            row_json = {}
+            for i, e in enumerate(rows):
+                field = fields[i]
+                row_json[field] = e
+
+            result.append(row_json)
+
+        return result
+    except Exception as e:
+        print("Error: unable to fetch data")
+        print(e)
+
+    db.close()
+
+
 if __name__ == '__main__':
+    sql = "SELECT FIRST_NAME as fname, " \
+          "LAST_NAME as lname, AGE as age FROM EMPLOYEE"
+    fields = ['fname', 'lname', 'age']
+    print(read_as_json(sql, fields))
     # check_version()
     # create_table()
     # insert_data2()
     # query_data()
     # update()
-    delete()
+    # delete()
