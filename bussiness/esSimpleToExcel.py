@@ -90,12 +90,8 @@ def page_data_to_excel(page, fields, ws, file_path):
     wb.save(file_path)
 
 
-def entry(index):
+def entry(index, search_body):
     doc = 'index'
-    search_body = {"size": 1000, "query": {
-        "bool": {"filter": [{"range": {"pub_time": {"gte": "2021-06-22", "lte": "2021-11-30"}}}],
-                 "should": [{"terms": {"title": ["电动自行车", "电动车"]}}, {"terms": {"content": ["电动自行车", "电动车"]}}],
-                 "minimum_should_match": 1}}}
 
     wb.create_sheet(title=index)
     ws = wb[index]
@@ -107,8 +103,11 @@ def entry(index):
 
 
 if __name__ == '__main__':
-    entry('public_opinion')
-    entry('market')
-    entry('recall')
-    entry('complaint')
-    entry('comparative_test')
+    opinion_search_body = {"size":300, "query":{"bool":{"should":[{"wildcard":{"source":{"value":"*珠海*"}}},{"nested":{"path":"area","query":{"term":{"area.city_code":{"value":"440400"}}}}},{"term":{"abstract":{"value":"珠海"}}},{"term":{"title":{"value":"珠海"}}},{"term":{"content":{"value":"珠海"}}}],"minimum_should_match":1,"filter":{"range":{"pub_time":{"gte":"2021-01-01","lt":"2022-01-01"}}}}}}
+    # search_body = {"size":1000,"query":{"bool":{"should":[{"terms":{"title":["玩具","童车"]}},{"terms":{"content":["玩具","童车"]}}],"minimum_should_match":1}}}
+
+    entry('public_opinion', opinion_search_body)
+    # entry('market', search_body)
+    # entry('recall', search_body)
+    # entry('complaint', search_body)
+    # entry('comparative_test', search_body)
