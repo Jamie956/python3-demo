@@ -103,11 +103,11 @@ def entry(index, search_body):
 
 
 if __name__ == '__main__':
-    opinion_search_body = {"size":300, "query":{"bool":{"should":[{"wildcard":{"source":{"value":"*珠海*"}}},{"nested":{"path":"area","query":{"term":{"area.city_code":{"value":"440400"}}}}},{"term":{"abstract":{"value":"珠海"}}},{"term":{"title":{"value":"珠海"}}},{"term":{"content":{"value":"珠海"}}}],"minimum_should_match":1,"filter":{"range":{"pub_time":{"gte":"2021-01-01","lt":"2022-01-01"}}}}}}
-    # search_body = {"size":1000,"query":{"bool":{"should":[{"terms":{"title":["玩具","童车"]}},{"terms":{"content":["玩具","童车"]}}],"minimum_should_match":1}}}
+    opinion_search_body = {"size":300,"query":{"bool":{"filter":[{"range":{"pub_time":{"gte":"2021-12-01","lt":"2022-01-01"}}},{"term":{"tags.keyword":{"value":"产品导致伤害"}}}]}}}
+    search_body = {"size":1000,"query":{"range":{"pub_time":{"gte":"2021-12-01","lt":"2022-01-01"}}}}
 
     entry('public_opinion', opinion_search_body)
+    entry('comparative_test', search_body)
     # entry('market', search_body)
     # entry('recall', search_body)
     # entry('complaint', search_body)
-    # entry('comparative_test', search_body)

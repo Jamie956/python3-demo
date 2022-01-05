@@ -147,6 +147,16 @@ def scroll_read(index, doc_type, query_body):
                 result.append(doc['_source'])
     return result
 
+# 获取文档的全部字段
+def mapping_fields(index, doc_type):
+    fields = []
+    mapping = es.indices.get_mapping(index=index)
+    for key in mapping:
+        if index in key:
+            mapping_properties = mapping[key]["mappings"][doc_type]["properties"]
+            for mapping_property in mapping_properties:
+                fields.append(mapping_property)
+    return fields
 
 if __name__ == '__main__':
     # insert_test_data('test_index', 'index')
