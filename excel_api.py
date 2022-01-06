@@ -2,13 +2,8 @@
 import openpyxl
 from datetime import datetime
 
-config = {
-    'file_path': './output/target.xlsx',
-    'sheet': ''
-}
 
-
-def simple_read():
+def simple_read(config):
     # 读excel
     wb = openpyxl.load_workbook(config['file_path'])
     # 选择指定sheet
@@ -24,7 +19,7 @@ def simple_read():
         print(row_value)
 
 
-def iter_read():
+def iter_read(config):
     wb = openpyxl.load_workbook(config['file_path'])
     ws = wb.active
 
@@ -42,7 +37,7 @@ def iter_read():
     print(row_datas)
 
 
-def iter_read2():
+def iter_read2(config):
     wb = openpyxl.load_workbook(config['file_path'])
     ws = wb.active
     '''
@@ -59,7 +54,7 @@ def iter_read2():
     print(col_datas)
 
 
-def write_api():
+def write_api(config):
     wb = openpyxl.Workbook()
 
     # grab the active worksheet
@@ -81,7 +76,7 @@ def write_api():
     wb.save(config['file_path'])
 
 
-def read_as_json():
+def read_as_json(config):
     print('read excel')
     wb = openpyxl.load_workbook(config['file_path'])
     ws = wb.active
@@ -104,4 +99,8 @@ def read_as_json():
 
 
 if __name__ == '__main__':
-    print(read_as_json())
+    config = {
+        'file_path': './output/target.xlsx',
+        'sheet': ''
+    }
+    print(read_as_json(config))

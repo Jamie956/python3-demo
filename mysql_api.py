@@ -2,21 +2,17 @@
 
 import pymysql
 
-config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'root',
-    'database': 'db2019'
-}
 
-# 打开数据库连接
-db = pymysql.connect(host=config['host'],
-                     user=config['user'],
-                     password=config['password'],
-                     database=config['database'])
+def connect(config):
+    # 打开数据库连接
+    return pymysql.connect(host=config['host'],
+                           user=config['user'],
+                           password=config['password'],
+                           database=config['database'])
 
 
-def check_version():
+def check_version(config):
+    db = connect(config)
     # 使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
     # 使用 execute()  方法执行 SQL 查询
@@ -28,7 +24,8 @@ def check_version():
     db.close()
 
 
-def create_table():
+def create_table(config):
+    db = connect(config)
     # 使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
     # 使用 execute() 方法执行 SQL，如果表存在则删除
@@ -45,7 +42,8 @@ def create_table():
     db.close()
 
 
-def insert_data():
+def insert_data(config):
+    db = connect(config)
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
     # SQL 插入语句
@@ -64,7 +62,8 @@ def insert_data():
     db.close()
 
 
-def insert_data2():
+def insert_data2(config):
+    db = connect(config)
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
     # SQL 插入语句
@@ -84,7 +83,8 @@ def insert_data2():
     db.close()
 
 
-def query_data():
+def query_data(config):
+    db = connect(config)
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
     # SQL 查询语句
@@ -111,7 +111,8 @@ def query_data():
     db.close()
 
 
-def update():
+def update(config):
+    db = connect(config)
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
 
@@ -130,7 +131,8 @@ def update():
     db.close()
 
 
-def delete():
+def delete(config):
+    db = connect(config)
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
 
@@ -149,7 +151,8 @@ def delete():
     db.close()
 
 
-def read_as_json(sql, fields):
+def read_as_json(config, sql, fields):
+    db = connect(config)
     print("query mysql")
     cursor = db.cursor()
 
@@ -175,10 +178,17 @@ def read_as_json(sql, fields):
 
 
 if __name__ == '__main__':
+    config = {
+        'host': 'localhost',
+        'user': 'root',
+        'password': 'root',
+        'database': 'db2019'
+    }
+
     sql = "SELECT FIRST_NAME as fname, " \
           "LAST_NAME as lname, AGE as age FROM EMPLOYEE"
     fields = ['fname', 'lname', 'age']
-    print(read_as_json(sql, fields))
+    print(read_as_json(config, sql, fields))
     # check_version()
     # create_table()
     # insert_data2()
