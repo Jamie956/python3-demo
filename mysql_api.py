@@ -192,6 +192,6 @@ if __name__ == '__main__':
     # check_version()
     # create_table()
     # insert_data2()
-    # query_data()
+    query_data()
     # update()
     # delete()
