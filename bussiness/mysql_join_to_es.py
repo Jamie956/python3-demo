@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import excel_api
-import mysql_api
+import pymysql_api
 import es_api
 from tqdm import tqdm
 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
     print("sql -> " + sql)
     fields = ['id', 'snapshot_id']
-    mysql_data = mysql_api.read_as_json(mysql_config, sql, fields)
+    mysql_data = pymysql_api.read_as_json(mysql_config, sql, fields)
 
     join_data = join(mysql_data, excel_data, 'snapshot_id')
 
