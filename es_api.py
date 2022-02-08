@@ -124,6 +124,30 @@ def bulk_insert(client, index, doc_type, items):
             actions.append(action)
     helpers.bulk(client, actions)
 
+#批量更新
+def bulk_update(client, index, doc_type, items, field):
+    batch_size = 500
+    total = len(items)
+    segment = math.ceil(total / batch_size)
+    actions = []
+
+    for i in range(segment):
+        start = i * batch_size
+        end = total if (start + batch_size) > total else start + batch_size
+        for j in range(start, end):
+            action = {
+                '_op_type': 'update',
+                "_index": index,
+                "_type": doc_type,
+                "_id": items[j]['id'],
+                "_retry_on_conflict": 3,
+                "doc": {
+                    field: items[j][field],
+                }
+            }
+            actions.append(action)
+    helpers.bulk(client, actions)
+
 
 def scroll_read(client, index, doc_type, query_body):
     print('es scroll read')

@@ -3,7 +3,7 @@
 import pymysql
 
 
-def connect(config):
+def get_client(config):
     # 打开数据库连接
     return pymysql.connect(host=config['host'],
                            user=config['user'],
@@ -11,23 +11,21 @@ def connect(config):
                            database=config['database'])
 
 
-def check_version(config):
-    db = connect(config)
+def check_version(client):
     # 使用 cursor() 方法创建一个游标对象 cursor
-    cursor = db.cursor()
+    cursor = client.cursor()
     # 使用 execute()  方法执行 SQL 查询
     cursor.execute("SELECT VERSION()")
     # 使用 fetchone() 方法获取单条数据.
     data = cursor.fetchone()
     print("Database version : %s " % data)
     # 关闭数据库连接
-    db.close()
+    client.close()
 
 
-def create_table(config):
-    db = connect(config)
+def create_table(client):
     # 使用 cursor() 方法创建一个游标对象 cursor
-    cursor = db.cursor()
+    cursor = client.cursor()
     # 使用 execute() 方法执行 SQL，如果表存在则删除
     # cursor.execute("DROP TABLE IF EXISTS EMPLOYEE")
     # 使用预处理语句创建表
@@ -39,13 +37,12 @@ def create_table(config):
              INCOME FLOAT )"""
     cursor.execute(sql)
     # 关闭数据库连接
-    db.close()
+    client.close()
 
 
-def insert_data(config):
-    db = connect(config)
+def insert_data(client):
     # 使用cursor()方法获取操作游标
-    cursor = db.cursor()
+    cursor = client.cursor()
     # SQL 插入语句
     sql = """INSERT INTO EMPLOYEE(FIRST_NAME,
              LAST_NAME, AGE, SEX, INCOME)
@@ -54,18 +51,17 @@ def insert_data(config):
         # 执行sql语句
         cursor.execute(sql)
         # 提交到数据库执行
-        db.commit()
+        client.commit()
     except:
         # 如果发生错误则回滚
-        db.rollback()
+        client.rollback()
     # 关闭数据库连接
-    db.close()
+    client.close()
 
 
-def insert_data2(config):
-    db = connect(config)
+def insert_data2(client):
     # 使用cursor()方法获取操作游标
-    cursor = db.cursor()
+    cursor = client.cursor()
     # SQL 插入语句
     sql = "INSERT INTO EMPLOYEE(FIRST_NAME, \
            LAST_NAME, AGE, SEX, INCOME) \
@@ -75,18 +71,17 @@ def insert_data2(config):
         # 执行sql语句
         cursor.execute(sql)
         # 执行sql语句
-        db.commit()
+        client.commit()
     except:
         # 发生错误时回滚
-        db.rollback()
+        client.rollback()
     # 关闭数据库连接
-    db.close()
+    client.close()
 
 
-def query_data(config):
-    db = connect(config)
+def query_data(client):
     # 使用cursor()方法获取操作游标
-    cursor = db.cursor()
+    cursor = client.cursor()
     # SQL 查询语句
     sql = "SELECT * FROM EMPLOYEE \
            WHERE INCOME > %s" % (1000)
@@ -108,13 +103,12 @@ def query_data(config):
         print("Error: unable to fetch data")
 
     # 关闭数据库连接
-    db.close()
+    client.close()
 
 
-def update(config):
-    db = connect(config)
+def update(client):
     # 使用cursor()方法获取操作游标
-    cursor = db.cursor()
+    cursor = client.cursor()
 
     # SQL 更新语句
     sql = "UPDATE EMPLOYEE SET AGE = AGE + 1 WHERE SEX = '%c'" % ('M')
@@ -122,19 +116,18 @@ def update(config):
         # 执行SQL语句
         cursor.execute(sql)
         # 提交到数据库执行
-        db.commit()
+        client.commit()
     except:
         # 发生错误时回滚
-        db.rollback()
+        client.rollback()
 
     # 关闭数据库连接
-    db.close()
+    client.close()
 
 
-def delete(config):
-    db = connect(config)
+def delete(client):
     # 使用cursor()方法获取操作游标
-    cursor = db.cursor()
+    cursor = client.cursor()
 
     # SQL 删除语句
     sql = "DELETE FROM EMPLOYEE WHERE AGE > %s" % (20)
@@ -142,19 +135,18 @@ def delete(config):
         # 执行SQL语句
         cursor.execute(sql)
         # 提交修改
-        db.commit()
+        client.commit()
     except:
         # 发生错误时回滚
-        db.rollback()
+        client.rollback()
 
     # 关闭连接
-    db.close()
+    client.close()
 
 
-def read_as_json(config, sql, fields):
-    db = connect(config)
+def read_as_json(client, sql, fields):
     print("query mysql")
-    cursor = db.cursor()
+    cursor = client.cursor()
 
     try:
         cursor.execute(sql)
@@ -174,8 +166,16 @@ def read_as_json(config, sql, fields):
         print("Error: unable to fetch data")
         print(e)
 
-    db.close()
+    client.close()
 
+def query_raw_data(client, sql):
+    cursor = client.cursor()
+    try:
+        cursor.execute(sql)
+        return cursor.fetchall()
+    except:
+        print("Error: unable to fetch data")
+    client.close()
 
 if __name__ == '__main__':
     config = {
@@ -184,14 +184,18 @@ if __name__ == '__main__':
         'password': 'root',
         'database': 'db2019'
     }
+    client = get_client(config)
+    # check_version(client)
 
-    sql = "SELECT FIRST_NAME as fname, " \
-          "LAST_NAME as lname, AGE as age FROM EMPLOYEE"
-    fields = ['fname', 'lname', 'age']
-    print(read_as_json(config, sql, fields))
+    list1 = query_raw_data(client, "select age, sex from EMPLOYEE")
+    print(list1)
+    # sql = "SELECT FIRST_NAME as fname, " \
+    #       "LAST_NAME as lname, AGE as age FROM EMPLOYEE"
+    # fields = ['fname', 'lname', 'age']
+    # print(read_as_json(config, sql, fields))
     # check_version()
     # create_table()
     # insert_data2()
-    query_data()
+    # query_data()
     # update()
     # delete()
