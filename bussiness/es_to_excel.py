@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-import es_api
+import es_test
 import excel_api
+import es_util
 
 '''
     config = {
         'es_connect': {
-            'host': '192.168.1.201',
-            'port': '9200',
-            'user': '',
-            'pwd': ''
+  'host': '',
+  'port': '',
+  'user': '',
+  'pwd': ''
         },
         'output_path': './output/20220121.xlsx',
         'data_config': [
@@ -46,30 +47,39 @@ def scroll_read_es_write_to_excel_by_config(config):
 
     excel_api.batch_write2excel_by_config(output_path, write_excel_config)
 
-
 if __name__ == '__main__':
+    es_client = es_util.get_client({
+            'host': '',
+            'port': '',
+            'user': '',
+            'pwd': ''
+        })
+
+    comparative_test_fields = es_util.mapping_fields(es_client, 'comparative_test', 'index')
+    complaint_fields = es_util.mapping_fields(es_client, 'complaint', 'index')
+
     config = {
         'es_connect': {
-            'host': '192.168.1.201',
-            'port': '9200',
+            'host': '',
+            'port': '',
             'user': '',
             'pwd': ''
         },
-        'output_path': './output/20220121.xlsx',
+        'output_path': './output/20220209-1.xlsx',
         'data_config': [
             {
                 'index': 'comparative_test',
                 'type': 'index',
-                'query': {"size": 400},
+                'query': '''{"query":{"range":{"pub_time":{"gte":"2020-06-18"}}}}''',
                 'sheet': '比较试验',
-                'headers': ['id', 'title', 'source_url']
+                'headers': comparative_test_fields
             },
             {
-                'index': 'public_opinion',
+                'index': 'complaint',
                 'type': 'index',
-                'query': {"size": 400},
-                'sheet': '舆情',
-                'headers': ['id', 'title']
+                'query': '''{"query":{"range":{"pub_time":{"gte":"2022-02-08"}}}}''',
+                'sheet': '投诉举报',
+                'headers': complaint_fields
             }
         ]
     }

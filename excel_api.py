@@ -10,7 +10,7 @@ import re
 
 def simple_read():
     # 读excel
-    wb = openpyxl.load_workbook('./output/target.xlsx')
+    wb = openpyxl.load_workbook('./output/aaa.xlsx')
     # 选择指定sheet
     # ws = wb['gov_Information']
 
@@ -92,9 +92,8 @@ def create_sheet_api():
 '''
 
 
-def read_as_json(config):
-    print('read excel')
-    wb = openpyxl.load_workbook(config['file_path'])
+def read_as_json(file_path):
+    wb = openpyxl.load_workbook(file_path)
     ws = wb.active
 
     headers = []
@@ -176,21 +175,22 @@ if __name__ == '__main__':
     # }
     # print(read_as_json(config))
 
-    data_config = [
-        {
-            'sheet': 'mysheet1',
-            'headers': ['name', 'age'],
-            'data': [{'name': '12', 'age': 11, 'ad': 'as'},
-                           {'name': 'to', 'age': 334, 'ad': 'ass'}]
-        },
-        {
-            'sheet': 'mysheet2',
-            'headers': ['name', 'age', 'ad'],
-            'data': [{'name': 'cat', 'age': 11, 'ad': 'as'},
-                           {'name': 'to', 'age': 334, 'ad': 'ass'}]
-        }
-    ]
+    # data_config = [
+    #     {
+    #         'sheet': 'mysheet1',
+    #         'headers': ['name', 'age'],
+    #         'data': [{'name': '12', 'age': 11, 'ad': 'as'},
+    #                        {'name': 'to', 'age': 334, 'ad': 'ass'}]
+    #     },
+    #     {
+    #         'sheet': 'mysheet2',
+    #         'headers': ['name', 'age', 'ad'],
+    #         'data': [{'name': 'cat', 'age': 11, 'ad': 'as'},
+    #                        {'name': 'to', 'age': 334, 'ad': 'ass'}]
+    #     }
+    # ]
+    #
+    # batch_write2excel_by_config('./output/target.xlsx', data_config)
 
-    batch_write2excel_by_config('./output/target.xlsx', data_config)
-
+    data = read_as_json('D:/projectb/python3-demo/bussiness/output/aaa.xlsx')
     print()
